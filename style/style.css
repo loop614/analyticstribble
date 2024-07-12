@@ -1,0 +1,40 @@
+#div1 {
+    height: 500px;
+}
+
+#div1 .class1,
+.class2,
+.class3 {
+    height: 33%;
+    width: 100%;
+}
+
+.class11,
+.class12,
+.class13 {
+    float: left;
+    display: inline;
+    border: 1px solid aqua;
+    height: 100%;
+    width: 33%;
+}
+
+.class21,
+.class22,
+.class23 {
+    float: left;
+    display: inline;
+    border: 1px solid aqua;
+    height: 100%;
+    width: 33%;
+}
+
+.class31,
+.class32,
+.class33 {
+    float: left;
+    display: inline;
+    border: 1px solid aqua;
+    height: 100%;
+    width: 33%;
+}
