@@ -1,13 +1,18 @@
 package com.loop614.analyticstribble.tracker.controller;
 
-import com.loop614.analyticstribble.tracker.transfer.TrackerInputTransfer;
-import com.loop614.analyticstribble.tracker.transfer.TrackerFilterTransfer;
-import com.loop614.analyticstribble.tracker.TrackerService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.loop614.analyticstribble.tracker.TrackerService;
+import com.loop614.analyticstribble.tracker.transfer.TrackerFilterTransfer;
+import com.loop614.analyticstribble.tracker.transfer.TrackerInputTransfer;
+import com.loop614.analyticstribble.tracker.transfer.TrackerTransfer;
 
 @RestController
 public class TrackerController {
@@ -25,7 +30,7 @@ public class TrackerController {
     }
 
     @GetMapping("/tracker")
-    public ResponseEntity<TrackerFilterTransfer> getTrackers(@ModelAttribute TrackerFilterTransfer filterTracker) {
-        return new ResponseEntity<TrackerFilterTransfer>(this.trackerService.getTrackers(filterTracker), HttpStatus.OK);
+    public ResponseEntity<TrackerTransfer> getTrackers(@ModelAttribute TrackerFilterTransfer filterTracker) {
+        return new ResponseEntity<>(this.trackerService.getTrackers(filterTracker), HttpStatus.OK);
     }
 }

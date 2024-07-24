@@ -1,10 +1,14 @@
 package com.loop614.analyticstribble.tracker;
 
+import java.util.ArrayList;
+
+import com.loop614.analyticstribble.tracker.entity.Tracker;
 import com.loop614.analyticstribble.tracker.transfer.TrackerFilterTransfer;
 import com.loop614.analyticstribble.tracker.transfer.TrackerInputTransfer;
+import com.loop614.analyticstribble.tracker.transfer.TrackerTransfer;
 
 public interface TrackerService {
-    boolean save(TrackerInputTransfer trackerInputTransfer);
+    ArrayList<Tracker> save(TrackerInputTransfer trackerInputTransfer);
 
-    public TrackerFilterTransfer getTrackers(TrackerFilterTransfer filterTracker);
+    public TrackerTransfer getTrackers(TrackerFilterTransfer filterTracker);
 }

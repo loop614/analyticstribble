@@ -19,7 +19,9 @@ $ ./node_modules/typescript/bin/tsc --watch
 $ docker compose up tribble_elastic
 $ ./mvnw spring-boot:run
 ```
+
+- browse elasticsearch with kibana
 ```console
 $ docker compose up tribble_elastic tribble_kibana
-$ ./mvnw spring-boot:run
+$ open http://localhost:5601
 ```

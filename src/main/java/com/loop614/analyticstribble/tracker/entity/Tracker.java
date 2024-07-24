@@ -1,15 +1,16 @@
 package com.loop614.analyticstribble.tracker.entity;
 
 import java.math.BigDecimal;
-
-import static org.springframework.data.elasticsearch.annotations.FieldType.*;
-
-import lombok.Builder;
-import lombok.Data;
+import java.time.LocalDate;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
+import static org.springframework.data.elasticsearch.annotations.FieldType.Date;
+import static org.springframework.data.elasticsearch.annotations.FieldType.Keyword;
+
+import lombok.Builder;
+import lombok.Data;
 
 @Data
 @Builder
@@ -17,9 +18,10 @@ import org.springframework.data.elasticsearch.annotations.Field;
 public class Tracker {
 
 	private @Id String id;
-	private String domain;
-    private String user;
-	private @Field(type = Date) String date;
+	private @Field(type = Keyword) String domain;
+    private @Field(type = Keyword) String customer;
+	private @Field(type = Date) LocalDate date;
+	private BigDecimal dt;
     private BigDecimal x;
 	private BigDecimal y;
 }

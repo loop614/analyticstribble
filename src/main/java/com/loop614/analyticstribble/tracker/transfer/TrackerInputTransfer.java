@@ -1,17 +1,8 @@
 package com.loop614.analyticstribble.tracker.transfer;
 
-import java.math.BigDecimal;
-import java.util.List;
+public class TrackerInputTransfer extends TrackerTransfer {
 
-class Vector {
-
-    public BigDecimal x;
-    public BigDecimal y;
-}
-
-public class TrackerInputTransfer {
-
-    public String domain;
-    public String customer;
-    public List<Vector> trails;
+    public TrackerInputTransfer(String domain, String customer) {
+        super(domain, customer);
+    }
 }
