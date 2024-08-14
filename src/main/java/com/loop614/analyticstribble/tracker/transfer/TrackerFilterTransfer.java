@@ -1,10 +1,18 @@
 package com.loop614.analyticstribble.tracker.transfer;
 
-import java.time.LocalDate;
-
 public class TrackerFilterTransfer {
 
     public String domain;
     public String customer;
-    public LocalDate date;
+    public String date;
+
+    public TrackerFilterTransfer(
+        String domain,
+        String customer,
+        String date
+    ) {
+        this.domain = domain;
+        this.customer = customer;
+        this.date = date;
+    }
 }

@@ -3,6 +3,7 @@ package com.loop614.analyticstribble.tracker.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,11 +26,13 @@ public class TrackerController {
     }
 
     @PostMapping("/tracker/new")
+    @CrossOrigin(origins = "http://localhost:6969")
     public ResponseEntity popularReviewJoinFromReview(@RequestBody TrackerInputTransfer trackerInputTransfer) {
         return new ResponseEntity(this.trackerService.save(trackerInputTransfer), HttpStatus.CREATED);
     }
 
-    @GetMapping("/tracker")
+    @GetMapping("/tracker/{domain}/{customer}/{date}")
+    @CrossOrigin(origins = "http://localhost:6969")
     public ResponseEntity<TrackerTransfer> getTrackers(@ModelAttribute TrackerFilterTransfer filterTracker) {
         return new ResponseEntity<>(this.trackerService.getTrackers(filterTracker), HttpStatus.OK);
     }

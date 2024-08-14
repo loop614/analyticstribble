@@ -6,11 +6,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.Criteria;
-import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
-import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import com.loop614.analyticstribble.tracker.entity.Tracker;
@@ -35,7 +30,7 @@ public class TrackerServiceImpl implements TrackerService {
     }
 
     @Override
-    public ArrayList<Tracker> save(TrackerInputTransfer trackerInputTransfer) {
+    public List<Tracker> save(TrackerInputTransfer trackerInputTransfer) {
         operations.indexOps(Tracker.class).refresh();
         List<Tracker> docs = new ArrayList<>();
 
@@ -58,16 +53,19 @@ public class TrackerServiceImpl implements TrackerService {
 
     @Override
     public TrackerTransfer getTrackers(TrackerFilterTransfer filterTracker) {
-        Criteria criteria = new Criteria("domain").is(filterTracker.domain).and("customer").is(filterTracker.customer).and("date").is(filterTracker.date);
-        Query query = new CriteriaQuery(criteria);
-        SearchHits<Tracker> hits = this.operations.search(query, Tracker.class);
+        List<Tracker> hits = this.repository.findByDomainAndCustomerAndDate(
+            filterTracker.domain,
+            filterTracker.customer,
+            filterTracker.date
+        );
         TrackerTransfer res = new TrackerTransfer(filterTracker.domain, filterTracker.customer);
-        for (SearchHit<Tracker> hit : hits) {
+
+        for (Tracker currentTracker : hits) {
             res.trails.add(
                     new VectorTransfer(
-                            hit.getContent().getX(),
-                            hit.getContent().getY(),
-                            hit.getContent().getDt()
+                            currentTracker.getX(),
+                            currentTracker.getY(),
+                            currentTracker.getDt()
                     )
             );
         }

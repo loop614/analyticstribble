@@ -1,0 +1,34 @@
+GET _cat/indices
+
+GET /tribble-tracker/_count
+
+GET tribble-tracker/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+GET tribble-tracker/_search
+{
+    "query": {
+        "bool" : {
+            "must" : [
+                { "query_string" : { "query" : "example.com", "fields" : [ "domain" ] } },
+                { "query_string" : { "query" : "customer1@otherexample.com", "fields" : [ "customer" ] } },
+                { "query_string" : { "query" : "2024-08-14", "fields" : [ "date" ] } }
+            ]
+        }
+    }
+}
+
+GET tribble-tracker/_search
+{
+  "query": {
+    "match": {
+      "domain": {
+        "query": "example.com"
+      }
+    }
+  }
+}

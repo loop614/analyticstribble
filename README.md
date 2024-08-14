@@ -14,6 +14,7 @@
 ```console
 $ npm install
 $ ./node_modules/typescript/bin/tsc --watch
+$ npm run dev
 ```
 ```console
 $ docker compose up tribble_elastic
