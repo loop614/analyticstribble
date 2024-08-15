@@ -1,5 +1,4 @@
 const TIME_WINDOW: number = 500;
-const POINTS_TO_SAVE: number = 6;
 let previousTimestamp: number = Date.now();
 
 type Vector2 = {
@@ -8,15 +7,26 @@ type Vector2 = {
     dt: number
 }
 
-let points: Vector2[] = [];
+type Replay = {
+    domain: string,
+    customer: string,
+    trails: Vector2[]
+}
+
+let pointsRecorded: Vector2[] = [];
 let mainDiv: HTMLElement = document.querySelector("#div1") as HTMLElement;
-let playButton: HTMLElement = document.querySelector("#play") as HTMLButtonElement;
-let callingNew: boolean = false;
+let recordButton: HTMLButtonElement = document.querySelector("#record") as HTMLButtonElement;
+let replayButton: HTMLButtonElement = document.querySelector("#replay") as HTMLButtonElement;
+let cursorDiv: HTMLElement = document.querySelector("#cursorDiv") as HTMLElement;
+let isRecording: boolean = false;
 const exampleDomain: string = "example.com";
 const exampleCustomer: string = "customer1@otherexample.com";
 
 ((): void => {
     onmousemove = (event) => {
+        if (!isRecording) {
+            return;
+        }
         if (!mainDiv.contains(event.target as Node)) {
             return;
         }
@@ -25,45 +35,71 @@ const exampleCustomer: string = "customer1@otherexample.com";
         let dt = nowTimestamp - previousTimestamp;
         if (dt > TIME_WINDOW) {
             console.log(dt, event.offsetX, event.offsetY);
-            points.push({ x: event.offsetX, y: event.offsetY, dt: dt });
+            pointsRecorded.push({ x: event.offsetX, y: event.offsetY, dt: dt });
             previousTimestamp = nowTimestamp;
         }
-        if (points.length >= POINTS_TO_SAVE && !callingNew) {
-            callingNew = true;
+    };
+
+    replayButton.onclick = async () => {
+        const now: Date = new Date();
+        const url: string = `http://localhost:12345/tracker/${exampleDomain}/${exampleCustomer}/${now.toISOString().split('T')[0]}`;
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const replay: Replay = await response.json();
+        let dt: number = 0;
+        let dtSum: number = 0;
+        let pivot: number = 0;
+        let previousTimestamp: number | undefined = undefined;
+        function step(nowTimestamp: number): void {
+            if (previousTimestamp === undefined) {
+                previousTimestamp = nowTimestamp;
+            }
+
+            dt = nowTimestamp - previousTimestamp;
+            dtSum += dt;
+            if (pivot < replay.trails.length && dtSum > replay.trails[pivot].dt) {
+                cursorDiv.style.left = replay.trails[pivot].x + "px";
+                cursorDiv.style.top = replay.trails[pivot].y + "px";
+                pivot++;
+                dtSum = 0;
+            }
+
+            previousTimestamp = nowTimestamp;
+            if (pivot < replay.trails.length) {
+                window.requestAnimationFrame(step);
+            }
+        }
+        window.requestAnimationFrame(step);
+    };
+
+    recordButton.onclick = () => {
+        isRecording = !isRecording;
+        recordButton.innerText = isRecording ? "Stop" : "Record";
+        if (!isRecording && pointsRecorded.length > 0) {
             fetch("http://localhost:12345/tracker/new", {
                 method: 'POST',
                 body: JSON.stringify(
                     {
-                        trails: points,
+                        trails: pointsRecorded,
                         domain: exampleDomain,
                         customer: exampleCustomer
                     }),
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Access-Control-Allow-Origin': '*'
-                 }
+                }
             }).then(
                 response => {
                     console.log(response.json());
-                    points = [];
+                    pointsRecorded = [];
                 }
-            ).catch(error => console.log(error)
-            ).finally(() => callingNew = false);
+            ).catch(error => console.log(error))
+                .finally(() => {
+                    replayButton.disabled = false
+                });
         }
-    };
-
-    playButton.onclick = async () => {
-        const response = await fetch("http://localhost:12345/tracker", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json; charset=UTF-8',
-                'Access-Control-Allow-Origin': '*'
-            }
-        }).then(
-            response => {
-                console.log(response.json());
-                points = [];
-            }
-        ).catch(error => console.log(error));
     };
 })();
