@@ -1,6 +1,13 @@
 GET _cat/indices
 
 GET /tribble-tracker/_count
+GET /tribble-swipe/_count
+
+DELETE /tribble-swipe
+DELETE /tribble-tracker
+
+GET tribble-tracker/_mapping
+GET tribble-swipe/_mapping
 
 GET tribble-tracker/_search
 {
@@ -9,27 +16,53 @@ GET tribble-tracker/_search
   }
 }
 
-GET tribble-tracker/_search
+GET tribble-swipe/_search
 {
-    "query": {
-        "bool" : {
-            "must" : [
-                { "query_string" : { "query" : "example.com", "fields" : [ "domain" ] } },
-                { "query_string" : { "query" : "customer1@otherexample.com", "fields" : [ "customer" ] } },
-                { "query_string" : { "query" : "2024-08-14", "fields" : [ "date" ] } }
-            ]
-        }
-    }
+  "query": {
+    "match_all": {}
+  }
 }
 
 GET tribble-tracker/_search
 {
   "query": {
-    "match": {
-      "domain": {
-        "query": "example.com"
-      }
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "swipeId": "Y9M53ZEBvAZoeyR-H9U7"
+          }
+        }
+      ]
     }
   }
 }
 
+
+GET tribble-swipe/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "domain": "?0"
+          }
+        },
+        {
+          "match": {
+            "customer": "?1"
+          }
+        },
+        {
+          "range": {
+            "datenano": {
+              "gte": "?2",
+              "lte": "?3"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -12,12 +12,10 @@ public interface TrackerRepository extends ElasticsearchRepository<Tracker, Stri
         {
             "bool": {
                 "must": [
-                    {"match": {"domain": "?0"}},
-                    {"match": {"customer": "?1"}},
-                    {"match": {"date": "?2"}}]}}"
+                    {"match": {"swipeId": "?0"}}
                 ]
             }
         }
         """)
-    List<Tracker> findByDomainAndCustomerAndDate(String domain, String customer, String date);
+    List<Tracker> findBySwipeId(String swipeId);
 }

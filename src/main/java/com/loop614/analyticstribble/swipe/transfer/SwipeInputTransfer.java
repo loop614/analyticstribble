@@ -1,12 +1,15 @@
-package com.loop614.analyticstribble.tracker.transfer;
+package com.loop614.analyticstribble.swipe.transfer;
 
-public class TrackerFilterTransfer {
+import lombok.Builder;
+
+@Builder
+public class SwipeInputTransfer {
 
     public String domain;
     public String customer;
     public String dateNano;
 
-    public TrackerFilterTransfer(
+    public SwipeInputTransfer(
         String domain,
         String customer,
         String dateNano
