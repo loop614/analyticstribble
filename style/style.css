@@ -1,3 +1,7 @@
+body {
+    background-color: darkgray;
+}
+
 #div1 {
     height: 500px;
 }
@@ -37,4 +41,9 @@
     border: 1px solid aqua;
     height: 100%;
     width: 33%;
+}
+
+#swipes {
+    color: white;
+    margin-top: 22px;
 }

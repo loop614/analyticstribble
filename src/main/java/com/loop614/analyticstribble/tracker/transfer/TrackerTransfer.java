@@ -7,17 +7,17 @@ public class TrackerTransfer {
 
     public String domain;
     public String customer;
-    public String dateNano;
+    public String date;
     public List<VectorTransfer> trails;
 
     public TrackerTransfer() {
         this.trails = new ArrayList<>();
     }
 
-    public TrackerTransfer(String domain, String customer, String dateNano) {
+    public TrackerTransfer(String domain, String customer, String date) {
         this.domain = domain;
         this.customer = customer;
-        this.dateNano = dateNano;
+        this.date = date;
         this.trails = new ArrayList<>();
     }
 }

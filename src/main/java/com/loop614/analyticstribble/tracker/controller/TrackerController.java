@@ -30,11 +30,11 @@ public class TrackerController {
 
     @PostMapping("/tracker/new")
     @CrossOrigin(origins = "http://localhost:6969")
-    public ResponseEntity<List<Tracker>> popularReviewJoinFromReview(@RequestBody TrackerInputTransfer trackerInputTransfer) {
+    public ResponseEntity<List<Tracker>> newTracker(@RequestBody TrackerInputTransfer trackerInputTransfer) {
         return new ResponseEntity<>(this.trackerService.save(trackerInputTransfer), HttpStatus.CREATED);
     }
 
-    @GetMapping("/tracker/{domain}/{customer}/{date}")
+    @GetMapping("/tracker/{swipeId}")
     @CrossOrigin(origins = "http://localhost:6969")
     public ResponseEntity<TrackerTransfer> getTrackers(@ModelAttribute TrackerFilterTransfer filterTracker) {
         return new ResponseEntity<>(this.trackerService.getTrackers(filterTracker), HttpStatus.OK);

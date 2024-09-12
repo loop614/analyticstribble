@@ -13,20 +13,44 @@ type Replay = {
     trails: Vector2[]
 }
 
+type Swipe = {
+    id: String;
+    domain: String;
+    customer: String;
+    datenano: String;
+}
+
 let pointsRecorded: Vector2[] = [];
 let mainDiv: HTMLElement = document.querySelector("#div1") as HTMLElement;
 let recordButton: HTMLButtonElement = document.querySelector("#record") as HTMLButtonElement;
-let replayButton: HTMLButtonElement = document.querySelector("#replay") as HTMLButtonElement;
-let cursorDiv: HTMLElement = document.querySelector("#cursorDiv") as HTMLElement;
+let cursorDiv: HTMLElement = document.querySelector("#cursor") as HTMLElement;
+let swipesDiv: HTMLElement = document.querySelector("#swipes") as HTMLElement;
 let isRecording: boolean = false;
-const exampleDomain: string = "example.com";
-const exampleCustomer: string = "customer1@otherexample.com";
-const onemilion: number = 1000000;
+const exampleDomain: string = "domain1";
+const exampleCustomer: string = "customer1";
 
 ((): void => {
     let previousTimestamp: number | undefined = undefined;
-    let startingDatenano: number | undefined = undefined;
+    let startingDatenano: String | undefined = undefined;
     let dt: number = 0;
+    getSwipes();
+
+    async function getSwipes() {
+        const now: Date = new Date();
+        const lastweek: Date = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const url: string = `http://localhost:12345/swipe/${exampleDomain}/${exampleCustomer}/${lastweek.toISOString()}/${now.toISOString()}`;
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+        const swipes: Swipe[] = await response.json();
+        let insertedHTML: string = "";
+        swipes.forEach((e) => {
+            insertedHTML += `${e.id} ${e.customer} ${e.domain} ${e.datenano} <button class="replayButton" swipeId="${e.id}">Replay</button><br/>`;
+        });
+        swipesDiv.innerHTML = insertedHTML;
+        addEventsToReplayButtons();
+    }
 
     onmousemove = (event) => {
         if (!isRecording) {
@@ -40,7 +64,7 @@ const onemilion: number = 1000000;
         let nowTimestamp = Date.now();
         dt = previousTimestamp === undefined ? 0 : (dt + (nowTimestamp - previousTimestamp));
         if (startingDatenano === undefined) {
-            startingDatenano = Date.now() * onemilion;
+            startingDatenano = new Date().toISOString();
         }
 
         if (dt > TIME_WINDOW) {
@@ -50,41 +74,49 @@ const onemilion: number = 1000000;
         previousTimestamp = nowTimestamp;
     };
 
-    replayButton.onclick = async () => {
-        const now: Date = new Date();
-        const lastweek: Date = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const url: string = `http://localhost:12345/tracker/${exampleDomain}/${exampleCustomer}/${lastweek.getTime()*onemilion}/${now.getTime()*onemilion}`;
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
+    function addEventsToReplayButtons() {
+        document.querySelectorAll(".replayButton").forEach((element: Element) => {
+            let button = element as HTMLButtonElement;
+            button.onclick = async () => {
+                const now: Date = new Date();
+                const lastweek: Date = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                const swipeId: string | null = element.getAttribute("swipeId");
+                if (swipeId === null) {
+                    return;
+                }
+                const url: string = `http://localhost:12345/tracker/${swipeId}`;
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                }
 
-        const replay: Replay = await response.json();
-        let dt: number = 0;
-        let dtSum: number = 0;
-        let pivot: number = 0;
-        let previousTimestamp: number | undefined = undefined;
-        function step(nowTimestamp: number): void {
-            if (previousTimestamp === undefined) {
-                previousTimestamp = nowTimestamp;
-            }
+                const replay: Replay = await response.json();
+                let dt: number = 0;
+                let dtSum: number = 0;
+                let pivot: number = 0;
+                let previousTimestamp: number | undefined = undefined;
+                function step(nowTimestamp: number): void {
+                    if (previousTimestamp === undefined) {
+                        previousTimestamp = nowTimestamp;
+                    }
 
-            dt = nowTimestamp - previousTimestamp;
-            dtSum += dt;
-            if (pivot < replay.trails.length && dtSum > replay.trails[pivot].dt) {
-                cursorDiv.style.left = replay.trails[pivot].x + "px";
-                cursorDiv.style.top = replay.trails[pivot].y + "px";
-                pivot++;
-                dtSum = 0;
-            }
+                    dt = nowTimestamp - previousTimestamp;
+                    dtSum += dt;
+                    if (pivot < replay.trails.length && dtSum > replay.trails[pivot].dt) {
+                        cursorDiv.style.left = replay.trails[pivot].x + "px";
+                        cursorDiv.style.top = replay.trails[pivot].y + "px";
+                        pivot++;
+                    }
 
-            previousTimestamp = nowTimestamp;
-            if (pivot < replay.trails.length) {
+                    previousTimestamp = nowTimestamp;
+                    if (pivot < replay.trails.length) {
+                        window.requestAnimationFrame(step);
+                    }
+                }
                 window.requestAnimationFrame(step);
-            }
-        }
-        window.requestAnimationFrame(step);
-    };
+            };
+        });
+    }
 
     recordButton.onclick = () => {
         isRecording = !isRecording;
@@ -97,7 +129,7 @@ const onemilion: number = 1000000;
                         trails: pointsRecorded,
                         domain: exampleDomain,
                         customer: exampleCustomer,
-                        datenano: startingDatenano,
+                        date: startingDatenano,
                     }),
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
@@ -110,9 +142,7 @@ const onemilion: number = 1000000;
                     startingDatenano = undefined;
                 }
             ).catch(error => console.log(error))
-                .finally(() => {
-                    replayButton.disabled = false
-                });
+            .finally(() => {});
         }
     };
 })();

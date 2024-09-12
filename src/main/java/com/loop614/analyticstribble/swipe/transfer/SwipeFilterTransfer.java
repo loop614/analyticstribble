@@ -4,18 +4,18 @@ public class SwipeFilterTransfer {
 
     public String domain;
     public String customer;
-    public String dateNanoFrom;
-    public String dateNanoTo;
+    public String dateFrom;
+    public String dateTo;
 
     public SwipeFilterTransfer(
         String domain,
         String customer,
-        String dateNanoFrom,
-        String dateNanoTo
+        String dateFrom,
+        String dateTo
     ) {
         this.domain = domain;
         this.customer = customer;
-        this.dateNanoFrom = dateNanoFrom;
-        this.dateNanoTo = dateNanoTo;
+        this.dateFrom = dateFrom;
+        this.dateTo = dateTo;
     }
 }

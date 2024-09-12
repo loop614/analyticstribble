@@ -1,9 +1,9 @@
 package com.loop614.analyticstribble.swipe;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.stereotype.Service;
 
 import com.loop614.analyticstribble.swipe.entity.Swipe;
@@ -15,41 +15,35 @@ import com.loop614.analyticstribble.swipe.transfer.SwipeInputTransfer;
 public class SwipeServiceImpl implements SwipeService {
 
     @Autowired
-    ElasticsearchOperations operations;
-
-    @Autowired
     SwipeRepository repository;
 
-    public SwipeServiceImpl(ElasticsearchOperations operations, SwipeRepository repository) {
-        this.operations = operations;
+    public SwipeServiceImpl(SwipeRepository repository) {
         this.repository = repository;
     }
 
     @Override
     public List<Swipe> getSwipes(SwipeFilterTransfer swipeFilter) {
-        return this.repository.findByDomainAndCustomerAndDateNanoBetween(
+        return this.repository.findByDomainAndCustomerAndDateBetween(
             swipeFilter.domain,
             swipeFilter.customer,
-            swipeFilter.dateNanoFrom,
-            swipeFilter.dateNanoTo
+            swipeFilter.dateFrom,
+            swipeFilter.dateTo
         );
     }
 
     @Override
     public Swipe save(SwipeInputTransfer swipeInputTransfer) {
-        operations.indexOps(Swipe.class).refresh();
         Swipe doc = Swipe.builder()
                 .domain(swipeInputTransfer.domain)
                 .customer(swipeInputTransfer.customer)
-                .datenano(swipeInputTransfer.dateNano)
+                .datenano(swipeInputTransfer.date)
                 .build();
 
         return repository.<Swipe>save(doc);
     }
 
     @Override
-    public Swipe findByDomainAndCustomerAndDateNano(String domain, String customer, String dateNano)
-    {
-        return this.repository.findByDomainAndCustomerAndDateNano(domain, customer, dateNano);
+    public Optional<Swipe> findBySwipeId(String swipeId) {
+        return this.repository.findById(swipeId);
     }
 }

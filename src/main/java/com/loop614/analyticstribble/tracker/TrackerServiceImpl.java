@@ -2,9 +2,9 @@ package com.loop614.analyticstribble.tracker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.stereotype.Service;
 
 import com.loop614.analyticstribble.swipe.SwipeService;
@@ -21,16 +21,12 @@ import com.loop614.analyticstribble.tracker.transfer.VectorTransfer;
 public class TrackerServiceImpl implements TrackerService {
 
     @Autowired
-    ElasticsearchOperations operations;
-
-    @Autowired
     TrackerRepository repository;
 
     @Autowired
     SwipeService swipeService;
 
-    public TrackerServiceImpl(ElasticsearchOperations operations, TrackerRepository repository, SwipeService swipeService) {
-        this.operations = operations;
+    public TrackerServiceImpl(TrackerRepository repository, SwipeService swipeService) {
         this.repository = repository;
         this.swipeService = swipeService;
     }
@@ -40,11 +36,10 @@ public class TrackerServiceImpl implements TrackerService {
         Swipe swipe = this.swipeService.save(SwipeInputTransfer.builder()
                 .domain(trackerInputTransfer.domain)
                 .customer(trackerInputTransfer.customer)
-                .dateNano(trackerInputTransfer.dateNano)
+                .date(trackerInputTransfer.date)
                 .build()
         );
 
-        operations.indexOps(Tracker.class).refresh();
         List<Tracker> docs = new ArrayList<>();
 
         for (VectorTransfer trail : trackerInputTransfer.trails) {
@@ -64,13 +59,13 @@ public class TrackerServiceImpl implements TrackerService {
 
     @Override
     public TrackerTransfer getTrackers(TrackerFilterTransfer filterTracker) {
-        Swipe swipe = this.swipeService.findByDomainAndCustomerAndDateNano(
-                filterTracker.domain,
-                filterTracker.customer,
-                filterTracker.dateNano
-        );
-        List<Tracker> hits = this.repository.findBySwipeId(swipe.getId());
-        TrackerTransfer res = new TrackerTransfer(swipe.getDomain(), swipe.getCustomer(), swipe.getDatenano());
+        Optional<Swipe> swipe = this.swipeService.findBySwipeId(filterTracker.swipeId);
+        if (swipe.isEmpty()) {
+            return new TrackerTransfer();
+        }
+
+        List<Tracker> hits = this.repository.findBySwipeId(filterTracker.swipeId);
+        TrackerTransfer res = new TrackerTransfer(swipe.get().getDomain(), swipe.get().getCustomer(), swipe.get().getDatenano());
 
         for (Tracker currentTracker : hits) {
             res.trails.add(

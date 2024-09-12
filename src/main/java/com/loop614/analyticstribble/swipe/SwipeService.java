@@ -1,6 +1,7 @@
 package com.loop614.analyticstribble.swipe;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.loop614.analyticstribble.swipe.entity.Swipe;
 import com.loop614.analyticstribble.swipe.transfer.SwipeFilterTransfer;
@@ -12,5 +13,5 @@ public interface SwipeService {
 
     public List<Swipe> getSwipes(SwipeFilterTransfer swipeFilter);
 
-    public Swipe findByDomainAndCustomerAndDateNano(String domain, String customer, String dateNano);
+    public Optional<Swipe> findBySwipeId(String swipeId);
 }
